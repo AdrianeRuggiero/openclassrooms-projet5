@@ -1,19 +1,18 @@
-// Crée le html à insérer dans le DOM pour chaque produit
+// Creates the HTML to insert into the DOM
 
 function showProducts(e){
-  return `
-      <a href="./product.html?id=${e._id}">
-          <article>
-            <img src="${e.imageUrl}" alt="${e.altTxt}">
-            <h3 class="productName">${e.name}</h3>
-            <p class="productDescription">${e.description}</p>
-          </article>
-      </a>
-  `;
+  return ` <a href="./product.html?id=${e._id}">
+              <article>
+                <img src="${e.imageUrl}" alt="${e.altTxt}">
+                <h3 class="productName">${e.name}</h3>
+                <p class="productDescription">${e.description}</p>
+              </article>
+            </a>
+          `;
 }
 
 
-// Appelle l'API pour récupérer les données produits
+// Calls the API to acces the products
 
 async function getProducts(){
  await fetch('http://localhost:3000/api/products')
