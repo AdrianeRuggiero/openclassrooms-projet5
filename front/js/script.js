@@ -1,11 +1,11 @@
 // Creates the HTML to insert into the DOM
 
-function showProducts(e){
-  return ` <a href="./product.html?id=${e._id}">
+function showProducts(article) {
+    return ` <a href="./product.html?id=${article._id}">
               <article>
-                <img src="${e.imageUrl}" alt="${e.altTxt}">
-                <h3 class="productName">${e.name}</h3>
-                <p class="productDescription">${e.description}</p>
+                <img src="${article.imageUrl}" alt="${article.altTxt}">
+                <h3 class="productName">${article.name}</h3>
+                <p class="productDescription">${article.description}</p>
               </article>
             </a>
           `;
@@ -14,17 +14,18 @@ function showProducts(e){
 
 // Calls the API to acces the products
 
-async function getProducts(){
- await fetch('http://localhost:3000/api/products')
-      .then(function(response){
-          return response.json();
-      })
-      .then(function(data){
-          for(let item in data){
-              document.querySelector("#items").innerHTML += showProducts(data[item]);
-          }
-      }) 
+async function getProducts() {
+    await fetch('http://localhost:3000/api/products')
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            let productsToShow = '';
+            for (let article in data) {
+                productsToShow += showProducts(data[article]);
+            }
+            document.getElementById('items').innerHTML = productsToShow;
+        })
 }
 
 getProducts();
-
