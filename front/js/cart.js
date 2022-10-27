@@ -1,10 +1,5 @@
 const myCart = JSON.parse(localStorage.getItem("myCart"));
 const orderBtn = document.getElementById("order");
-const firstName = document.getElementById("firstName");
-const lastName = document.getElementById("lastName");
-const address = document.getElementById("address");
-const city = document.getElementById("city");
-const email = document.getElementById("email");
 
 /*orderBtn.setAttribute("disabled", true);*/
 
@@ -112,11 +107,12 @@ function changeQuantity() {
 
       const quantityControl = myCart.find(element => element.quantityChanged !== oldQuantity);
 
-      if (quantityChanged >= 1) {
+      if (quantityChanged >= 1 && quantityChanged <= 100) {
         quantityControl.quantity = quantityChanged;
         myCart[p].quantity = quantityControl.quantity;
       } else {
         myCart.filter(element => element.quantity >= 1)
+        alert('Veuillez choisir une quantité comprise entre 1 et 100')
       }
       localStorage.setItem("myCart", JSON.stringify(myCart));
       location.reload();
@@ -130,13 +126,13 @@ function changeQuantity() {
 const verifyFirstName = document.getElementById("firstName");
 verifyFirstName.setAttribute("pattern", "[a-zA-Z-éèà]*");
 
-let verifyLastName = document.getElementById("lastName"); //const
+const verifyLastName = document.getElementById("lastName");
 verifyLastName.setAttribute("pattern", "[a-zA-Z-éèà]*");
 
-let verifyCity = document.getElementById("city"); //const
+const verifyCity = document.getElementById("city");
 verifyCity.setAttribute("pattern", "[a-zA-Z-éèà]*");
 
-let verifyEmail = document.getElementById("email"); //const
+const verifyEmail = document.getElementById("email");
 verifyEmail.setAttribute("pattern", "[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+.[a-zA-Z.]{2,15}");
 
 //Get Id's to send to API
@@ -155,62 +151,6 @@ document.querySelector(".cart__order__form__submit").addEventListener("click", a
     }
   }
   if (valid) {
-    /*
-    const response = fetch("http://localhost:3000/api/products/order", {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            contact: {
-                firstName: document.getElementById("firstName").value,
-                lastName: document.getElementById("lastName").value,
-                address: document.getElementById("address").value,
-                city: document.getElementById("city").value,
-                email: document.getElementById("email").value
-            },
-            products: getId
-        })
-    });
-    response.then(async(response) => {
-        try {
-            const data = await response.json();
-            window.location.href = `confirmation.html?id=${data.orderId}`;
-            localStorage.clear();
-        } catch (error) {}
-    });
-    */
-
-    // vérification des input
-
-    // appel POST
-    // Promise version
-    /*
-    fetch("http://localhost:3000/api/products/order", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                contact: {
-                    firstName: document.getElementById("firstName").value,
-                    lastName: document.getElementById("lastName").value,
-                    address: document.getElementById("address").value,
-                    city: document.getElementById("city").value,
-                    email: document.getElementById("email").value
-                },
-                products: getId
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            window.location.href = `confirmation.html?id=${data.orderId}`;
-            localStorage.clear();
-        })
-        .catch(error => console.error(error));
-    */
-
-    // async version
     try {
       const response = await fetch("http://localhost:3000/api/products/order", {
         method: "POST",
@@ -241,9 +181,9 @@ document.querySelector(".cart__order__form__submit").addEventListener("click", a
 async function process() {
   await getCart()
   await addDeleteEvent()
-  showTotalQuantity();
-  showTotalPrice();
-  changeQuantity();
+  await showTotalQuantity();
+  await showTotalPrice();
+  await changeQuantity();
 }
 
 process()
