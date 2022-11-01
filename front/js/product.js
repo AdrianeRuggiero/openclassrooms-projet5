@@ -57,7 +57,7 @@ function sendProductToCart(product) {
 
     const myProduct = {
       name: product.name,
-      ID: product._id,
+      id: product._id,
       picture: product.imageUrl,
       pictureTxt: product.altTxt,
       color: productColors.value,
@@ -69,7 +69,7 @@ function sendProductToCart(product) {
       let productsInCart = JSON.parse(localStorage.getItem("myCart"));
       if (productsInCart) {
 
-        const productControl = productsInCart.find(sofa => sofa.ID == product._id && sofa.color == productColors.value)
+        const productControl = productsInCart.find(sofa => sofa.id == product._id && sofa.color == productColors.value)
         if (productControl) {
           let finalQuantity = myProduct.quantity + productControl.quantity;
           productControl.quantity = finalQuantity;
@@ -82,8 +82,8 @@ function sendProductToCart(product) {
       }
       saveCart(productsInCart);
       alert("Le produit a été ajouté au panier")
+      window.location.href = 'cart.html';
     } else {
-
       alert("Veuillez vérifier la quantité et/ou la couleur choisie.")
     }
   })
