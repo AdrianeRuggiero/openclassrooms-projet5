@@ -1,10 +1,13 @@
 const myCart = JSON.parse(localStorage.getItem("myCart"));
 
+
+//Shows a message if the cart is empty
 if (myCart == null || myCart.length == 0) {
-  document.getElementById("cart__items").innerHTML += `Votre panier est vide`;
+  document.getElementById("cart__items").innerText += `Votre panier est vide`;
 
 } else {
 
+  //Shows the items in the cart
   function showCart(item, price) {
     return `<article class="cart__item" data-id="${item.id}" data-color="${item.color}">
       <div class="cart__item__img">
@@ -19,7 +22,7 @@ if (myCart == null || myCart.length == 0) {
         <div class="cart__item__content__settings">
           <div class="cart__item__content__settings__quantity">
             <p>Qté : </p>
-            <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" canapeId="${item.id}" canapeColor="${item.color}"  value="${item.quantity}">
+            <input data-id= ${item.id} data-color= ${item.color} type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" canapeId="${item.id}" canapeColor="${item.color}"  value="${item.quantity}">
           </div>
           <div class="cart__item__content__settings__delete">
             <p class="deleteItem">Supprimer</p>
@@ -29,16 +32,16 @@ if (myCart == null || myCart.length == 0) {
     </article>`
   }
 
+
+  //Get item by productId
   function getItemById(productId) {
     return fetch('http://localhost:3000/api/products/' + productId)
       .then(function(response) {
         return response.json();
       })
-
-    // const response = response => response.json();
   }
 
-  // Show itens from localStorage
+  // Gets items from localStorage and adds the price using it's id
   async function getCart() {
     let domUpdated = ''
     for (let items in myCart) {
@@ -52,16 +55,17 @@ if (myCart == null || myCart.length == 0) {
   }
 
 
-  // Delete button
+  // Add delete envent to each product on cart
   async function addDeleteEvent() {
     const deleteBtn = document.querySelectorAll(".deleteItem");
 
     for (let i = 0; i < deleteBtn.length; i++) {
       deleteBtn[i].addEventListener("click", function(event) {
+        event.preventDefault;
         let deletedItemId = myCart[i].id;
         let deletedItemColor = myCart[i].color
 
-        // Keep others itens 
+        // Keep others items 
         const myNewCart = myCart.filter(item => item.id !== deletedItemId || item.color !== deletedItemColor);
 
         localStorage.setItem("myCart", JSON.stringify(myNewCart));
@@ -73,6 +77,7 @@ if (myCart == null || myCart.length == 0) {
     }
   }
 
+  // get all elements and sum them into 'totalQuantity' element
   function showTotalQuantity() {
     let totalQuantity = 0;
     const itemQuantity = document.getElementById("totalQuantity");
@@ -85,6 +90,7 @@ if (myCart == null || myCart.length == 0) {
   }
 
 
+  // get all elements and sum their price into 'totalPrice' element
   async function showTotalPrice() {
     let totalPrice = 0;
     const itemPrice = document.getElementById("totalPrice");
@@ -98,32 +104,39 @@ if (myCart == null || myCart.length == 0) {
 
 
 
-  // Change the quantity direct in the cart
-
+  // Add the 'change' event to each product quantity and refresh items after change
   function changeQuantity() {
     const quantitySelector = document.getElementsByClassName("itemQuantity");
 
     for (let p = 0; p < quantitySelector.length; p++) {
       quantitySelector[p].addEventListener("change", function(event) {
 
-        const quantityChanged = quantitySelector[p].valueAsNumber;
-        if (quantityChanged < 1 || quantityChanged > 100) {
+        let quantityChanged = quantitySelector[p].valueAsNumber;
+        if (quantityChanged < 1) {
           alert('Veuillez choisir une quantité comprise entre 1 et 100')
-          return;
+          quantityChanged = 1
+        } else if (quantityChanged > 100) {
+          alert('Veuillez choisir une quantité comprise entre 1 et 100')
+          quantityChanged = 100
         }
 
-        // const currentElementIncart = myCart.filter(kanap => kanap.color === event……id / vérif color et id étant identique)
-        // currentElementIncart.quantity = quantityChanged
-
+        const dataId = event.target.getAttribute("data-id");
+        const dataColor = event.target.getAttribute("data-color");
+        const currentElementIncart = myCart.find(item => item.id === dataId && item.color === dataColor)
+        currentElementIncart.quantity = quantityChanged
+        quantitySelector[p].valueAsNumber = quantityChanged
         localStorage.setItem("myCart", JSON.stringify(myCart));
+
+        //recalculate total quantity
+        showTotalQuantity()
+
         // recalculate total price
         showTotalPrice()
       })
     }
   }
 
-  //Form Verification
-
+  // Check if user input is correct for each field before sending it
   function formVerification() {
 
     const verifyFirstName = document.getElementById("firstName");
@@ -139,16 +152,15 @@ if (myCart == null || myCart.length == 0) {
     verifyEmail.setAttribute("pattern", "[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+.[a-zA-Z.]{2,15}");
 
     //Get Id's to send to API
-
     const getId = myCart.map(item => item.id);
 
     //Validate data from user to sent to API
-
     document.querySelector(".cart__order__form__submit").addEventListener("click", async function(e) {
       e.preventDefault();
       let valid = true;
       for (let input of document.querySelectorAll(".cart__order__form__question input")) {
         valid &= input.reportValidity();
+
         if (!valid) {
           break;
         }
@@ -186,9 +198,9 @@ if (myCart == null || myCart.length == 0) {
   async function process() {
     await getCart()
     await addDeleteEvent()
-    await showTotalQuantity();
+    showTotalQuantity();
     await showTotalPrice();
-    await changeQuantity();
+    changeQuantity();
   }
 
   process()
