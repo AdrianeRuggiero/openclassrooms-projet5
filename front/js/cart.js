@@ -1,10 +1,19 @@
 const myCart = JSON.parse(localStorage.getItem("myCart"));
 
+//Disable order button
+function disableButton() {
+  document.getElementById("order").disabled = true;
+}
+
+//Enable order
+function enableButton() {
+  document.getElementById("order").disabled = false;
+}
 
 //Shows a message if the cart is empty
 if (myCart == null || myCart.length == 0) {
   document.getElementById("cart__items").innerText += `Votre panier est vide`;
-
+  disableButton()
 } else {
 
   //Shows the items in the cart
@@ -85,6 +94,8 @@ if (myCart == null || myCart.length == 0) {
     for (let item in myCart) {
       totalQuantity += myCart[item].quantity;
     }
+    // myCart.forEach(canap => totalQuantity += canap.quantity)
+
 
     itemQuantity.innerText = totalQuantity;
   }
@@ -136,37 +147,99 @@ if (myCart == null || myCart.length == 0) {
     }
   }
 
-  // Check if user input is correct for each field before sending it
-  function formVerification() {
 
-    const verifyFirstName = document.getElementById("firstName");
-    verifyFirstName.setAttribute("pattern", "[a-zA-Z-éèà]*");
+  //Verify user information
+  async function formVerification() {
 
-    const verifyLastName = document.getElementById("lastName");
-    verifyLastName.setAttribute("pattern", "[a-zA-Z-éèà]*");
 
-    const verifyCity = document.getElementById("city");
-    verifyCity.setAttribute("pattern", "[a-zA-Z-éèà]*");
+    const firstName = document.querySelector("#firstName");
+    const lastName = document.querySelector("#lastName");
+    const address = document.querySelector("#address");
+    const city = document.querySelector("#city");
+    const email = document.querySelector("#email");
+    disableButton()
 
-    const verifyEmail = document.getElementById("email");
-    verifyEmail.setAttribute("pattern", "[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+.[a-zA-Z.]{2,15}");
-
-    //Get Id's to send to API
-    const getId = myCart.map(item => item.id);
-
-    //Validate data from user to sent to API
-    document.querySelector(".cart__order__form__submit").addEventListener("click", async function(e) {
-      e.preventDefault();
-      let valid = true;
-      for (let input of document.querySelectorAll(".cart__order__form__question input")) {
-        valid &= input.reportValidity();
-
-        if (!valid) {
-          break;
-        }
+    //Verify first name
+    const firstNameValidation = document.querySelector("#firstNameErrorMsg");
+    firstName.addEventListener("change", function(e) {
+      if (/^[A-Z][A-Za-z\é\è\ê\- ]+$/.test(e.target.value)) {
+        firstNameValidation.innerHTML = "";
+        enableButton()
+      } else {
+        firstNameValidation.innerHTML = "Le prénom doit commencer par une majuscule.";
+        disableButton()
       }
-      if (valid) {
+    })
+
+    // Verify last name
+    const lastNameValidation = document.querySelector("#lastNameErrorMsg");
+    lastName.addEventListener("change", function(e) {
+      if (/^[A-Z][A-Za-z\é\è\ê\- ]+$/.test(e.target.value)) {
+        lastNameValidation.innerHTML = "";
+        enableButton()
+      } else {
+        lastNameValidation.innerHTML = "Nom incorrect"
+        disableButton()
+      }
+    })
+
+    // Verify adress
+    const addressValidation = document.querySelector("#addressErrorMsg");
+    address.addEventListener("change", function(e) {
+      if (/^.{3,144}$/.test(e.target.value)) {
+        addressValidation.innerHTML = "";
+        enableButton()
+      } else {
+        addressValidation.innerHTML = "Adresse incorrect"
+        disableButton()
+      }
+    })
+
+    // Verify city
+    const cityValidation = document.querySelector("#cityErrorMsg");
+    city.addEventListener("change", function(e) {
+      if (/^[A-Z][A-Za-z\é\è\ê\- ]+$/.test(e.target.value)) {
+        cityValidation.innerHTML = "";
+        enableButton()
+      } else {
+        cityValidation.innerHTML = "Veuillez vérifier la ville"
+        disableButton()
+      }
+    })
+
+    // Verify email
+    const emailValidation = document.querySelector("#emailErrorMsg");
+    email.addEventListener("change", function(e) {
+      if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(e.target.value)) {
+        emailValidation.innerHTML = "";
+        enableButton()
+      } else {
+        emailValidation.innerHTML = "Adresse email incorrect"
+        disableButton()
+      }
+    })
+
+  }
+
+
+
+
+  // Sends the order and gets their ID
+  async function submitOrder() {
+
+    const firstNameValidation = document.querySelector("#firstNameErrorMsg");
+    const lastNameValidation = document.querySelector("#lastNameErrorMsg");
+    const addressValidation = document.querySelector("#addressErrorMsg");
+    const cityValidation = document.querySelector("#cityErrorMsg");
+    const emailValidation = document.querySelector("#emailErrorMsg");
+
+
+    const submitBtn = document.querySelector("#order");
+    submitBtn.addEventListener("click", async function(e) {
+      e.preventDefault();
+      if (firstNameValidation.innerHTML == "" && lastNameValidation.innerHTML == "" && addressValidation.innerHTML == "" && cityValidation.innerHTML == "" && emailValidation.innerHTML == "") {
         try {
+
           const response = await fetch("http://localhost:3000/api/products/order", {
             method: "POST",
             headers: {
@@ -180,7 +253,7 @@ if (myCart == null || myCart.length == 0) {
                 city: document.getElementById("city").value,
                 email: document.getElementById("email").value
               },
-              products: getId
+              products: myCart.map(item => item.id)
             })
           })
           const data = await response.json()
@@ -191,9 +264,7 @@ if (myCart == null || myCart.length == 0) {
         }
       }
     })
-
   }
-
 
   async function process() {
     await getCart()
@@ -201,8 +272,10 @@ if (myCart == null || myCart.length == 0) {
     showTotalQuantity();
     await showTotalPrice();
     changeQuantity();
+    formVerification();
+    submitOrder();
   }
 
   process()
-  formVerification()
+
 }

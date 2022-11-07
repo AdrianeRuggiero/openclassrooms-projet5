@@ -13,8 +13,8 @@ function createProductPage() {
 async function getProduct(productId) {
 
   try {
-    const response = await fetch("http://localhost:3000/api/products/" + productId)
-      .then(response => response.json());
+    const rawResponse = await fetch("http://localhost:3000/api/products/" + productId)
+    const response = await rawResponse.json();
     showProduct(response);
     sendProductToCart(response);
   } catch (error) {
